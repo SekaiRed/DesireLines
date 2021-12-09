@@ -1,4 +1,4 @@
-package com.sekai.keepoffthegrass;
+package com.sekai.desirelines;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;

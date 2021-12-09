@@ -1,4 +1,4 @@
-package com.sekai.keepoffthegrass;
+package com.sekai.desirelines;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;

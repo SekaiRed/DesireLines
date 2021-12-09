@@ -1,4 +1,4 @@
-package com.sekai.keepoffthegrass;
+package com.sekai.desirelines;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -6,7 +6,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
