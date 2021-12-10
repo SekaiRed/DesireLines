@@ -63,7 +63,7 @@ public class Config {
 
         try
         {
-            Double.parseDouble(split[2]);
+            Double.parseDouble(split[2].trim());
         }
         catch(NumberFormatException e)
         {
@@ -71,8 +71,8 @@ public class Config {
             return false;
         }
 
-        ResourceLocation source = new ResourceLocation(split[0]);
-        ResourceLocation result = new ResourceLocation(split[1]);
+        ResourceLocation source = new ResourceLocation(split[0].trim());
+        ResourceLocation result = new ResourceLocation(split[1].trim());
 
         return ForgeRegistries.BLOCKS.containsKey(source) && ForgeRegistries.BLOCKS.containsKey(result);
     }
