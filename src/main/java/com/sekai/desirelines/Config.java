@@ -37,11 +37,13 @@ public class Config {
 
     //Common
     public static boolean shouldMobDecay;
+    public static double mobFactor;
     public static List<BlockDecayEntry> blockDecayEntries;
 
     public static void bakeConfig() {
         //Common
         shouldMobDecay = COMMON.shouldMobDecay.get();
+        mobFactor = COMMON.mobFactor.get();
         blockDecayEntries = new ArrayList<>();
         for (String s : COMMON.blockList.get()) {
             String[] split = s.split(",");
@@ -77,6 +79,7 @@ public class Config {
 
     public static class CommonConfig {
         public final ForgeConfigSpec.BooleanValue shouldMobDecay;
+        public final ForgeConfigSpec.DoubleValue mobFactor;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blockList;
 
         public CommonConfig(ForgeConfigSpec.Builder builder) {
@@ -84,6 +87,10 @@ public class Config {
                     .comment("Should mobs also decay terrain?")
                     .translation("keepoffthegrass.config.shouldMobDecay")
                     .define("shouldMobDecay", false);
+            mobFactor = builder
+                    .comment("How likely should mobs be to decay terrain?")
+                    .translation("keepoffthegrass.config.mobFactor")
+                    .defineInRange("mobFactor", 1.0D, 0D, Double.MAX_VALUE);
             blockList = builder
                     .comment("A list of entries, first is the block's full id (minecraft:grass), next the target block id, and third the likelihood of it decaying.")
                     .translation("keepoffthegrass.config.blockList")
