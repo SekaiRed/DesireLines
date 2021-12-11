@@ -15,6 +15,8 @@ public class DesireLines
     public static final String MODID = "desirelines";
 
     public DesireLines() {
+        Registry.init();
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_SPEC);
 
         MinecraftForge.EVENT_BUS.register(Events.class);

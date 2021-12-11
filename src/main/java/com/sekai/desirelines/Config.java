@@ -58,6 +58,7 @@ public class Config {
 
     private static boolean verifyEntryIntegrity(String[] split) {
         //Not the right amount of arguments
+        //if(split.length < 3 || split.length > 4)
         if(split.length != 3)
             return false;
 
