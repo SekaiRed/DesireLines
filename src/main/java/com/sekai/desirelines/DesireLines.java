@@ -11,12 +11,10 @@ import org.apache.logging.log4j.Logger;
 @Mod(DesireLines.MODID)
 public class DesireLines
 {
-    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "desirelines";
 
     public DesireLines() {
-        Registry.init();
-
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_SPEC);
 
         MinecraftForge.EVENT_BUS.register(Events.class);

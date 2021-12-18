@@ -31,22 +31,30 @@ public class Events {
         if (!world.isClientSide && canEntityDecay(living)) {
             BlockPos pos = new BlockPos(living.getX(), living.getY() - 0.01D, living.getZ());
             BlockState state = world.getBlockState(pos);
-            Block block = state.getBlock();
+            //Block block = state.getBlock();
             double random = Math.random();
             double factor = 1D;
 
             //System.out.println(block);
 
-            if(!(living instanceof PlayerEntity))
+            if(living instanceof PlayerEntity)
+                factor = Config.playerFactor;
+            else
                 factor = Config.mobFactor;
 
             for(Config.BlockDecayEntry entry : Config.blockDecayEntries) {
-                if(block.equals(ForgeRegistries.BLOCKS.getValue(entry.source))) {
+                if(entry.getSource().isSame(state)) {
                     if(random < (entry.getChance() * factor)) {
                         decayBlock(living, state, pos, world, entry);
                         return;
                     }
                 }
+                /*if(block.equals(ForgeRegistries.BLOCKS.getValue(entry.source))) {
+                    if(random < (entry.getChance() * factor)) {
+                        decayBlock(living, state, pos, world, entry);
+                        return;
+                    }
+                }*/
             }
         }
 
@@ -58,11 +66,12 @@ public class Events {
     }
 
     private static void decayBlock(LivingEntity living, BlockState originalState, BlockPos pos, World world, Config.BlockDecayEntry entry) {
-        Block block = ForgeRegistries.BLOCKS.getValue(entry.result);
+        /*Block block = ForgeRegistries.BLOCKS.getValue(entry.result);
         if(block == null)
             return;
 
-        BlockState newState = block.defaultBlockState();
+        BlockState newState = block.defaultBlockState();*/
+        BlockState newState = entry.result.getBlockState();
 
         VoxelShape shape = newState.getCollisionShape(world, pos).move((double)pos.getX(), (double)pos.getY() - 0.001D, (double)pos.getZ());
 
@@ -71,7 +80,7 @@ public class Events {
             entity.teleportTo(entity.getX(), entity.getY() + 1.0D + d0, entity.getZ());
         }
 
-        world.setBlockAndUpdate(pos, block.defaultBlockState());
+        world.setBlockAndUpdate(pos, newState);
 
         /*newState.getCollisionShape(world, pos).bounds()
 

@@ -1,16 +1,21 @@
 package com.sekai.desirelines;
 
+import com.google.common.collect.Maps;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.command.arguments.BlockStateParser;
+import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = DesireLines.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
@@ -36,60 +41,45 @@ public class Config {
     }
 
     //Common
+    public static double playerFactor;
     public static boolean shouldMobDecay;
     public static double mobFactor;
     public static List<BlockDecayEntry> blockDecayEntries;
 
     public static void bakeConfig() {
         //Common
+        playerFactor = COMMON.playerFactor.get();
         shouldMobDecay = COMMON.shouldMobDecay.get();
         mobFactor = COMMON.mobFactor.get();
         blockDecayEntries = new ArrayList<>();
         for (String s : COMMON.blockList.get()) {
             String[] split = s.split(",");
 
-            if (!verifyEntryIntegrity(split))
+            if (!Util.verifyEntryIntegrity(split))
                 continue;
 
-            BlockDecayEntry blockDecayEntry = new BlockDecayEntry(new ResourceLocation(split[0]), new ResourceLocation(split[1]), Double.parseDouble(split[2]));
+            BlockDecayEntry blockDecayEntry = Util.createBlockDecayEntry(split);
             blockDecayEntries.add(blockDecayEntry);
         }
     }
 
-    private static boolean verifyEntryIntegrity(String[] split) {
-        //Not the right amount of arguments
-        //if(split.length < 3 || split.length > 4)
-        if(split.length != 3)
-            return false;
-
-        try
-        {
-            Double.parseDouble(split[2].trim());
-        }
-        catch(NumberFormatException e)
-        {
-            //Not a double
-            return false;
-        }
-
-        ResourceLocation source = new ResourceLocation(split[0].trim());
-        ResourceLocation result = new ResourceLocation(split[1].trim());
-
-        return ForgeRegistries.BLOCKS.containsKey(source) && ForgeRegistries.BLOCKS.containsKey(result);
-    }
-
     public static class CommonConfig {
+        public final ForgeConfigSpec.DoubleValue playerFactor;
         public final ForgeConfigSpec.BooleanValue shouldMobDecay;
         public final ForgeConfigSpec.DoubleValue mobFactor;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blockList;
 
         public CommonConfig(ForgeConfigSpec.Builder builder) {
+            playerFactor = builder
+                    .comment("How likely are players to decay terrain?")
+                    .translation("keepoffthegrass.config.mobFactor")
+                    .defineInRange("mobFactor", 1.0D, 0D, Double.MAX_VALUE);
             shouldMobDecay = builder
                     .comment("Should mobs also decay terrain?")
                     .translation("keepoffthegrass.config.shouldMobDecay")
                     .define("shouldMobDecay", false);
             mobFactor = builder
-                    .comment("How likely should mobs be to decay terrain?")
+                    .comment("How likely are mobs to decay terrain?")
                     .translation("keepoffthegrass.config.mobFactor")
                     .defineInRange("mobFactor", 1.0D, 0D, Double.MAX_VALUE);
             blockList = builder
@@ -107,21 +97,27 @@ public class Config {
     }
 
     public static class BlockDecayEntry {
-        ResourceLocation source;
-        ResourceLocation result;
+        BlockStateWithParameters source;
+        BlockStateWithParameters result;
         double chance;
 
-        public BlockDecayEntry(ResourceLocation source, ResourceLocation result, double chance) {
+        /*public BlockDecayEntry(ResourceLocation source, ResourceLocation result, double chance) {
             this.source = source;
             this.result = result;
             this.chance = chance;
+        }*/
+
+        public BlockDecayEntry(BlockStateParser source, BlockStateParser result, double chance) {
+            this.source = new BlockStateWithParameters(source);
+            this.result = new BlockStateWithParameters(result);
+            this.chance = chance;
         }
 
-        public ResourceLocation getSource() {
+        public BlockStateWithParameters getSource() {
             return source;
         }
 
-        public ResourceLocation getResult() {
+        public BlockStateWithParameters getResult() {
             return result;
         }
 
@@ -136,6 +132,44 @@ public class Config {
                     ", result=" + result +
                     ", chance=" + chance +
                     '}';
+        }
+
+        public static class BlockStateWithParameters {
+            private final Block block;
+            private final Map<Property<?>, Comparable<?>> properties;
+            private final BlockState state;
+
+            public BlockStateWithParameters(BlockStateParser parser) {
+                block = parser.getState() != null ? parser.getState().getBlock() : null;
+                properties = parser.getProperties();
+                state = parser.getState();
+            }
+
+            public boolean isSame(BlockState state) {
+                return isBlock(state) && doPropertiesMatch(state);
+            }
+
+            public boolean isBlock(BlockState state) {
+                return state.is(this.block);
+            }
+
+            public boolean doPropertiesMatch(BlockState state) {
+                for(Property<?> property : properties.keySet()) {
+                    if (state.getValue(property) != this.state.getValue(property)) {
+                        return false;
+                    }
+                }
+                return true;
+                /*for(Property<?> property : this.properties) {
+                    if (blockstate.getValue(property) != this.state.getValue(property)) {
+                        return false;
+                    }
+                }*/
+            }
+
+            public BlockState getBlockState() {
+                return state;
+            }
         }
     }
 }
